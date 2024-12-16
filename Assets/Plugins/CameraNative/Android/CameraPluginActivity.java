@@ -30,9 +30,8 @@ import com.unity3d.player.UnityPlayerActivity;
 import java.nio.IntBuffer;
 import java.util.List;
 
-public class CameraPluginActivity extends UnityPlayerActivity
+public class CameraPluginActivity
 {
-    public static CameraPluginActivity _context;
     private boolean _update;
     private final Size _previewSize = new Size(1280, 720);
     private CameraDevice _cameraDevice;
@@ -103,18 +102,11 @@ public class CameraPluginActivity extends UnityPlayerActivity
 
     public native void nativeRelease();
 
-    protected void onCreate(Bundle bundle)
-    {
-        super.onCreate(bundle);
-        commonInit();
-    }
-
     private void commonInit()
     {
         if (checkPermission(CAMERA_PERMISSION, REQUEST_PERMISSION))
         {
             nativeInit();
-            setContext(this);
             _renderScript = RenderScript.create(UnityPlayer.currentContext);
             _handlerThread = new HandlerThread("CameraPluginActivity");
             _handlerThread.start();
@@ -124,12 +116,6 @@ public class CameraPluginActivity extends UnityPlayerActivity
         }
     }
 
-    /// CameraPluginActivity 인스턴스 반환
-    private static synchronized void setContext(CameraPluginActivity context)
-    {
-        _context = context;
-    }
-
     /// 권한 체크
     private boolean checkPermission(String permission, int requestCode)
     {
@@ -137,7 +123,9 @@ public class CameraPluginActivity extends UnityPlayerActivity
         if (UnityPlayer.currentActivity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
         {
             if (UnityPlayer.currentActivity.shouldShowRequestPermissionRationale(permission))
-                finish();
+            {
+                // 권한 요청
+            }
             else
                 UnityPlayer.currentActivity.requestPermissions(new String[]{permission, "android.permission.WRITE_EXTERNAL_STORAGE"}, requestCode);
 
@@ -155,22 +143,20 @@ public class CameraPluginActivity extends UnityPlayerActivity
             if (grantResults.length > 0 && grantResults[0] == 0)
                 commonInit();
             else
-                finish();
+            {
+                // 권한 거부
+            }
         }
         else
-            finish();
+        {
+            // 다른 권한 요청
+
+        }
     }
 
-    public void onResume()
+    private void onRelease()
     {
-        super.onResume();
-    }
-
-    protected void onDestroy()
-    {
-        super.onDestroy();
         nativeRelease();
-        setContext(null);
     }
 
     public void onPause()
@@ -188,7 +174,6 @@ public class CameraPluginActivity extends UnityPlayerActivity
         }
 
         stopCamera();
-        super.onPause();
     }
 
     private void requestJavaRendering(int texturePointer)
@@ -228,7 +213,7 @@ public class CameraPluginActivity extends UnityPlayerActivity
 
     private int getSensorOrientation(String cameraId) throws CameraAccessException
     {
-        CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
+        CameraManager manager = (CameraManager) UnityPlayer.currentActivity.getSystemService(UnityPlayerActivity.CAMERA_SERVICE);
         CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
         return characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
     }
@@ -245,7 +230,7 @@ public class CameraPluginActivity extends UnityPlayerActivity
             builder.addTarget(_previewSurface);
 
             // FPS 범위를 60fps로 설정
-            CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
+            CameraManager manager = (CameraManager) UnityPlayer.currentActivity.getSystemService(UnityPlayerActivity.CAMERA_SERVICE);
             String pickedCamera = getCamera(manager);
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(pickedCamera);
 
@@ -278,7 +263,7 @@ public class CameraPluginActivity extends UnityPlayerActivity
             }
 
             int sensorOrientation = getSensorOrientation(pickedCamera); // 센서 방향 가져오기
-            int deviceRotation = getWindowManager().getDefaultDisplay().getRotation(); // 기기 방향 가져오기
+            int deviceRotation = UnityPlayer.currentActivity.getWindowManager().getDefaultDisplay().getRotation(); // 기기 방향 가져오기
             int totalRotation = (sensorOrientation + deviceRotation * 90) % 360;
 
             builder.set(CaptureRequest.JPEG_ORIENTATION, totalRotation);
@@ -296,12 +281,12 @@ public class CameraPluginActivity extends UnityPlayerActivity
 
     private void startCamera()
     {
-        CameraManager manager = (CameraManager) getSystemService(UnityPlayerActivity.CAMERA_SERVICE);
+        CameraManager manager = (CameraManager) UnityPlayer.currentActivity.getSystemService(UnityPlayerActivity.CAMERA_SERVICE);
 
         try
         {
             // 권한이 요구됨
-            if (checkSelfPermission(CAMERA_PERMISSION) != PackageManager.PERMISSION_GRANTED)
+            if (UnityPlayer.currentActivity.checkSelfPermission(CAMERA_PERMISSION) != PackageManager.PERMISSION_GRANTED)
                 return;
 
             // 카메라를 찾아서 오픈

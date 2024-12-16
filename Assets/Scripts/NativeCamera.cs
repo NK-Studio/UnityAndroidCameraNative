@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class UpdateCamera : MonoBehaviour
+public class NativeCamera : MonoBehaviour
 {
 
     [DllImport("Camera-Rendering")]
@@ -15,36 +15,38 @@ public class UpdateCamera : MonoBehaviour
 
     private AndroidJavaObject _androidJavaPlugin;
 
-    private CameraBackground _cameraBackground;
+    public Material BackgroundMaterial;
 
-    private IEnumerator Start()
+    private void Start()
     {
-        _cameraBackground = FindAnyObjectByType<CameraBackground>();
-        
-        using (AndroidJavaClass javaClass = new AndroidJavaClass("gmy.camera.CameraPluginActivity"))
-        {
-            _androidJavaPlugin = javaClass.GetStatic<AndroidJavaObject>("_context");
-        }
+        _androidJavaPlugin = new AndroidJavaObject("gmy.camera.CameraPluginActivity");
 
         CreateTextureAndPassToPlugin();
-        yield return StartCoroutine(CallPluginAtEndOfFrames());
+        StartCoroutine(CallPluginAtEndOfFrames());
         
+        StartCamera();
+    }
+
+    /// <summary>
+    /// 카메라를 실행합니다.
+    /// </summary>
+    public void StartCamera()
+    {
+        _androidJavaPlugin.Call("commonInit");
     }
 
     private void CreateTextureAndPassToPlugin()
     {
-        Texture2D tex = new Texture2D(1280, 720, TextureFormat.RGBA32, false);
-        tex.filterMode = FilterMode.Point;
+        Texture2D backgroundTexture = new Texture2D(1280, 720, TextureFormat.RGBA32, false);
+        backgroundTexture.filterMode = FilterMode.Point;
 
-        tex.Apply();
+        backgroundTexture.Apply();
 
-        SetTextureFromUnity(tex.GetNativeTexturePtr());
-        _cameraBackground.SetTexture(tex);
+        SetTextureFromUnity(backgroundTexture.GetNativeTexturePtr());
+        BackgroundMaterial.mainTexture = backgroundTexture;
         EnablePreview(true);
     }
-
-   
-
+    
     private IEnumerator CallPluginAtEndOfFrames()
     {
         while (true)
@@ -64,4 +66,12 @@ public class UpdateCamera : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (_androidJavaPlugin != null)
+        {
+            _androidJavaPlugin.Call("onRelease");
+            _androidJavaPlugin.Dispose();
+        }
+    }
 }

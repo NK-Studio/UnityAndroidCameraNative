@@ -19,7 +19,7 @@
             android:required="true" />
 
     <application>
-        <activity android:name="gmy.camera.CameraPluginActivity"
+        <activity android:name="com.unity3d.player.UnityPlayerActivity"
                   android:theme="@style/UnityThemeSelector">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
