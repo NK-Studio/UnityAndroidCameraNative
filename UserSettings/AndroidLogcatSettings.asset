@@ -1,9 +1,9 @@
 {
-    "m_SelectedDeviceId": "192.168.0.19:45679",
+    "m_SelectedDeviceId": "adb-RFCT326TY2Z-MMDhgI._adb-tls-connect._tcp.",
     "m_SelectedProcess": {
-        "deviceId": "192.168.0.19:45679",
-        "name": "com.DefaultCompany.CameraImage",
-        "processId": 1055,
+        "deviceId": "",
+        "name": "",
+        "processId": 0,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -48,6 +48,24 @@
             "deviceId": "192.168.0.19:45679",
             "name": "com.DefaultCompany.CameraImage",
             "processId": 1055,
+            "exited": false
+        },
+        {
+            "deviceId": "192.168.0.21:42227",
+            "name": "com.nkstudio.camera",
+            "processId": 14004,
+            "exited": true
+        },
+        {
+            "deviceId": "192.168.0.21:42227",
+            "name": "com.sec.android.app.launcher",
+            "processId": 3572,
+            "exited": false
+        },
+        {
+            "deviceId": "192.168.0.21:42227",
+            "name": "com.google.android.youtube",
+            "processId": 28719,
             "exited": false
         }
     ],

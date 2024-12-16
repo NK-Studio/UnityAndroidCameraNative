@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.nkstudio.ufolder": {
+      "version": "https://github.com/NK-Studio/UFolder.git#UPM",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "18ffc1b77594a324fb94e2b8614e2e3a524fbfb8"
+    },
     "com.unity.collab-proxy": {
       "version": "2.5.2",
       "depth": 0,

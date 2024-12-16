@@ -7,10 +7,10 @@ using UnityEngine.Serialization;
 public class UpdateCamera : MonoBehaviour
 {
 
-    [DllImport("NativeCameraPlugin")]
+    [DllImport("Camera-Rendering")]
     private static extern void SetTextureFromUnity(IntPtr texture);
 
-    [DllImport("NativeCameraPlugin")]
+    [DllImport("Camera-Rendering")]
     private static extern IntPtr GetRenderEventFunc();
 
     private AndroidJavaObject _androidJavaPlugin;
